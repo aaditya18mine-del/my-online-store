@@ -3,252 +3,158 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MyShop - Online Shopping</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Online Store</title>
   <style>
-    * { box-sizing: border-box; }
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: #f4f6f9;
+      margin: 0;
+      background: #f3f5f9;
       color: #222;
     }
     header {
       background: #0875e1;
       color: white;
-      padding: 18px 5%;
+      padding: 20px;
+      text-align: center;
     }
-    .top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-    .logo { font-size: 27px; font-weight: bold; }
     #search {
       padding: 12px;
+      width: 80%;
+      max-width: 400px;
       border: 0;
       border-radius: 8px;
-      width: min(100%, 350px);
-      font-size: 16px;
+      margin-top: 12px;
     }
-    .hero {
-      text-align: center;
-      padding: 45px 15px;
-      background: #dcecff;
-    }
-    .hero h1 { color: #0759b5; }
-    main { max-width: 1100px; margin: auto; padding: 20px; }
+    h2 { text-align: center; }
     .products {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      padding: 20px;
     }
-    .product, .cart {
+    .product {
       background: white;
       padding: 15px;
       border-radius: 12px;
-      box-shadow: 0 2px 8px #00000010;
+      text-align: center;
+      box-shadow: 0 2px 8px #ddd;
     }
     .product img {
       width: 100%;
-      height: 145px;
+      height: 150px;
       object-fit: contain;
-      border-radius: 8px;
     }
-    .product h3 { font-size: 17px; }
-    .price { color: #d71920; font-weight: bold; }
+    .price {
+      color: #d71920;
+      font-weight: bold;
+    }
     button {
       background: #0875e1;
       color: white;
-      padding: 10px 12px;
       border: 0;
+      padding: 10px 15px;
       border-radius: 7px;
       cursor: pointer;
-      margin: 3px 0;
     }
-    button:hover { background: #0759b5; }
-    .product button { width: 100%; }
-    .cart { margin-top: 25px; }
-    .cart-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      border-bottom: 1px solid #eee;
-      padding: 12px 0;
-      flex-wrap: wrap;
-    }
-    .remove { background: #d71920; }
-    .checkout {
-      background: #16a34a;
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      margin-top: 12px;
-    }
-    footer {
-      text-align: center;
-      padding: 22px;
-      background: #172334;
-      color: white;
-      margin-top: 25px;
+    .cart {
+      margin: 20px;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
     }
   </style>
 </head>
 <body>
   <header>
-    <div class="top">
-      <div class="logo">MyShop 🛍️</div>
-      <input id="search" placeholder="प्रोडक्ट खोजें..."
-             oninput="showProducts()">
-      <div>🛒 कार्ट: <span id="count">0</span></div>
-    </div>
+    <h1>🛍️ My Online Store</h1>
+    <p>आपकी पसंद, आपकी शॉपिंग!</p>
+    <input id="search" placeholder="प्रोडक्ट खोजें..."
+           oninput="showProducts()">
   </header>
 
-  <section class="hero">
-    <h1>आपकी पसंद, आपकी शॉपिंग!</h1>
-    <p>अच्छे प्रोडक्ट, शानदार कीमतें</p>
-    <button onclick="document.getElementById('shop').scrollIntoView()">
-      अभी खरीदारी करें
-    </button>
+  <h2>हमारे प्रोडक्ट</h2>
+  <div class="products" id="products"></div>
+
+  <section class="cart">
+    <h2>आपका कार्ट 🛒</h2>
+    <div id="cart">कार्ट खाली है।</div>
+    <h3>कुल: ₹<span id="total">0</span></h3>
+    <button onclick="order()">WhatsApp पर ऑर्डर करें</button>
   </section>
 
-  <main>
-    <h2 id="shop">हमारे प्रोडक्ट</h2>
-    <div class="products" id="products"></div>
-
-    <section class="cart">
-      <h2>आपका शॉपिंग कार्ट 🛒</h2>
-      <div id="cartItems">आपका कार्ट अभी खाली है।</div>
-      <h3>कुल राशि: ₹<span id="total">0</span></h3>
-      <button class="checkout" onclick="checkout()">
-        WhatsApp पर ऑर्डर करें
-      </button>
-      <p style="font-size:13px;color:#666">
-        ऑर्डर भेजने से पहले WhatsApp पर जानकारी जाँचें।
-      </p>
-    </section>
-  </main>
-
-  <footer>
-    © 2026 MyShop | ऑनलाइन शॉपिंग वेबसाइट
-  </footer>
-
   <script>
-    const products = [
-      {id:1, name:"वायरलेस हेडफोन", price:1299,
+    const items = [
+      {name:"हेडफोन",price:1299,
        image:"https://placehold.co/300x200?text=Headphones"},
-      {id:2, name:"स्मार्ट वॉच", price:1999,
+      {name:"स्मार्ट वॉच",price:1999,
        image:"https://placehold.co/300x200?text=Smart+Watch"},
-      {id:3, name:"स्पोर्ट्स शूज़", price:1499,
+      {name:"जूते",price:1499,
        image:"https://placehold.co/300x200?text=Shoes"},
-      {id:4, name:"बैकपैक बैग", price:899,
-       image:"https://placehold.co/300x200?text=Backpack"},
-      {id:5, name:"मोबाइल फोन", price:9999,
+      {name:"बैग",price:899,
+       image:"https://placehold.co/300x200?text=Bag"},
+      {name:"मोबाइल",price:9999,
        image:"https://placehold.co/300x200?text=Mobile"},
-      {id:6, name:"सनग्लासेस", price:499,
+      {name:"सनग्लासेस",price:499,
        image:"https://placehold.co/300x200?text=Sunglasses"}
     ];
 
     let cart = [];
 
     function showProducts() {
-      const query = document.getElementById("search").value.toLowerCase();
-      const filtered = products.filter(p =>
-        p.name.toLowerCase().includes(query)
-      );
-
-      document.getElementById("products").innerHTML =
-        filtered.map(p => `
-          <article class="product">
-            <img src="${p.image}" alt="${p.name}">
-            <h3>${p.name}</h3>
-            <p class="price">₹${p.price.toLocaleString("en-IN")}</p>
-            <button onclick="addToCart(${p.id})">
-              कार्ट में जोड़ें
-            </button>
-          </article>
-        `).join("") || "<p>कोई प्रोडक्ट नहीं मिला।</p>";
+      const q = document.getElementById("search").value.toLowerCase();
+      const filtered = items.filter(p => p.name.toLowerCase().includes(q));
+      document.getElementById("products").innerHTML = filtered.map((p,i) => `
+        <div class="product">
+          <img src="${p.image}" alt="${p.name}">
+          <h3>${p.name}</h3>
+          <p class="price">₹${p.price.toLocaleString("en-IN")}</p>
+          <button onclick="add(${items.indexOf(p)})">कार्ट में जोड़ें</button>
+        </div>
+      `).join("") || "<p>कोई प्रोडक्ट नहीं मिला।</p>";
     }
 
-    function addToCart(id) {
-      const item = cart.find(p => p.id === id);
-      if (item) {
-        item.qty++;
-      } else {
-        const product = products.find(p => p.id === id);
-        cart.push({...product, qty:1});
-      }
-      updateCart();
-    }
-
-    function changeQty(id, amount) {
-      const item = cart.find(p => p.id === id);
-      if (!item) return;
-      item.qty += amount;
-      if (item.qty <= 0) {
-        cart = cart.filter(p => p.id !== id);
-      }
+    function add(i) {
+      cart.push(items[i]);
       updateCart();
     }
 
     function updateCart() {
-      const count = cart.reduce((sum, p) => sum + p.qty, 0);
-      const total = cart.reduce((sum, p) => sum + p.price * p.qty, 0);
-
-      document.getElementById("count").textContent = count;
-      document.getElementById("total").textContent =
-        total.toLocaleString("en-IN");
-
-      document.getElementById("cartItems").innerHTML = cart.length
-        ? cart.map(p => `
-          <div class="cart-row">
-            <span>${p.name} — ₹${p.price.toLocaleString("en-IN")}</span>
-            <span>
-              <button onclick="changeQty(${p.id},-1)">−</button>
-              ${p.qty}
-              <button onclick="changeQty(${p.id},1)">+</button>
-              <button class="remove"
-                onclick="changeQty(${p.id},-${p.qty})">हटाएँ</button>
-            </span>
-          </div>
+      document.getElementById("cart").innerHTML = cart.length
+        ? cart.map((p,i) => `
+          <p>${p.name} - ₹${p.price}
+          <button onclick="removeItem(${i})">हटाएँ</button></p>
         `).join("")
-        : "आपका कार्ट अभी खाली है।";
+        : "कार्ट खाली है।";
+      document.getElementById("total").textContent =
+        cart.reduce((sum,p) => sum+p.price,0).toLocaleString("en-IN");
     }
 
-    function checkout() {
+    function removeItem(i) {
+      cart.splice(i,1);
+      updateCart();
+    }
+
+    function order() {
       if (!cart.length) {
         alert("पहले कार्ट में प्रोडक्ट जोड़ें।");
         return;
       }
-
-      const lines = cart.map(p =>
-        `${p.name} x ${p.qty} = ₹${p.price * p.qty}`
-      ).join("\n");
-
-      const total = cart.reduce((sum, p) => sum + p.price * p.qty, 0);
-
-      const message =
-        `नमस्ते! मुझे ऑर्डर करना है:\n${lines}\nकुल: ₹${total}`;
-
-      // नीचे 91 के बाद अपना 10 अंकों वाला WhatsApp नंबर डालें।
+      const msg = "नमस्ते, मुझे ये प्रोडक्ट ऑर्डर करने हैं:\n" +
+        cart.map(p => p.name + " - ₹" + p.price).join("\n") +
+        "\nकुल: ₹" + cart.reduce((s,p)=>s+p.price,0);
+      // अपना WhatsApp नंबर नीचे डालें।
       const phone = "91XXXXXXXXXX";
-
       if (phone.includes("X")) {
-        alert("पहले कोड में अपना WhatsApp नंबर डालें।");
+        alert("कोड में अपना WhatsApp नंबर डालें।");
         return;
       }
-
-      window.open(
-        "https://wa.me/" + phone + "?text=" +
-        encodeURIComponent(message),
-        "_blank"
-      );
+      window.open("https://wa.me/" + phone + "?text=" +
+        encodeURIComponent(msg), "_blank");
     }
 
     showProducts();
   </script>
 </body>
 </html>
+
